@@ -43,23 +43,20 @@
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(0, 0, -3); // Placer le cube à 3 mètres devant
+        cube.position.set(0, 0, -3); // Placer le cube à 3 mètres en face de l'utilisateur
         scene.add(cube);
 
-        // Gestion des dimensions de la fenêtre
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        // Configuration des contrôleurs (pour activer le suivi de la caméra via WebXR)
+        const xrController = renderer.xr.getController(0);
+        scene.add(xrController);
 
-        // Bouton pour démarrer la session VR
+        // Bouton pour entrer en mode VR
         const vrButton = document.getElementById('enter-vr');
         vrButton.addEventListener('click', () => {
             if (navigator.xr) {
                 navigator.xr.requestSession('immersive-vr').then((session) => {
                     renderer.xr.setSession(session);
-                    vrButton.style.display = 'none'; // Masquer le bouton après activation
+                    vrButton.style.display = 'none'; // Masquer le bouton une fois activé
                 }).catch((err) => {
                     alert('WebXR not supported: ' + err.message);
                 });
@@ -70,14 +67,19 @@
 
         // Animation
         function animate() {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
             renderer.setAnimationLoop(() => {
                 renderer.render(scene, camera);
             });
         }
 
         animate();
+
+        // Ajustement des dimensions de la fenêtre
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
