@@ -81,10 +81,8 @@
 
         // Animation
         function animate() {
-            cube.rotation.x += 0.01; // Faire tourner le cube sur l'axe X
-            cube.rotation.y += 0.01; // Faire tourner le cube sur l'axe Y
             renderer.setAnimationLoop(() => {
-                renderer.render(scene, camera); // Rendu de la scène
+                renderer.render(scene, camera); // Rendu de la scène avec caméra qui suit les mouvements
             });
         }
 
