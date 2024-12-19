@@ -3,33 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Test</title>
-    <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@immersive-web/webxr-polyfill@1.0.0/build/webxr-polyfill.min.js"></script>
+    <title>WebXR Cube - Three.js r128</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/webxr/VRButton.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
     <script>
-        // Create the scene, camera, and renderer
+        // Initialisation de la scène, de la caméra et du rendu
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
+        renderer.xr.enabled = true; // Activer WebXR
         document.body.appendChild(renderer.domElement);
 
-        // Add a simple box to the scene
+        // Bouton pour activer la VR
+        document.body.appendChild(THREE.VRButton.createButton(renderer));
+
+        // Création d'un cube
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        // Set camera position
+        // Position de la caméra
         camera.position.z = 5;
 
-        // Add WebXR button
-        document.body.appendChild(THREE.XRController.createButton(renderer));
-
-        // Animation loop
+        // Animation du cube
         function animate() {
             cube.rotation.x += 0.01;
             cube.rotation.y += 0.01;
@@ -39,6 +48,13 @@
         }
 
         animate();
+
+        // Ajustement du rendu au redimensionnement de la fenêtre
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
