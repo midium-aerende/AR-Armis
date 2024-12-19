@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Cube - Three.js r128</title>
+    <title>WebXR Cube</title>
+    <!-- Import de Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Import de VRButton.js compatible -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/webxr/VRButton.js"></script>
     <style>
         body {
@@ -23,22 +25,23 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true; // Activer WebXR
+        renderer.xr.enabled = true; // Activer le mode XR
         document.body.appendChild(renderer.domElement);
 
-        // Bouton pour activer la VR
-        document.body.appendChild(THREE.VRButton.createButton(renderer));
+        // Ajouter un bouton VR
+        const vrButton = VRButton.createButton(renderer); // Correctement défini
+        document.body.appendChild(vrButton);
 
-        // Création d'un cube
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        // Ajouter un cube
+        const geometry = new THREE.BoxGeometry(1, 1, 1); // Taille 1x1x1
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Vert
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        // Position de la caméra
+        // Positionner la caméra
         camera.position.z = 5;
 
-        // Animation du cube
+        // Animation
         function animate() {
             cube.rotation.x += 0.01;
             cube.rotation.y += 0.01;
@@ -49,11 +52,11 @@
 
         animate();
 
-        // Ajustement du rendu au redimensionnement de la fenêtre
+        // Gestion de la fenêtre redimensionnée
         window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
