@@ -19,14 +19,6 @@
       <a-entity gltf-model="url(model.glb)" scale="1 1 1" position="0 0 0" rotation="0 0 0">
       </a-entity>
 
-      <!-- Ajouter un élément <a-sky> pour utiliser la vue caméra comme texture de fond -->
-      <a-sky id="camera-background" src="#camera-feed"></a-sky>
-
-      <!-- Ajouter une vidéo pour afficher la caméra en temps réel -->
-      <video id="camera-feed" autoplay loop="true" playsinline="true" style="display: none;">
-        <source id="video-source" type="video/mp4">
-      </video>
-
       <!-- Lumières autour de la scène -->
       <a-light type="directional" position="5 5 5" intensity="1.5" color="#ff6347"></a-light>  <!-- Lumière 1 -->
       <a-light type="directional" position="-5 5 5" intensity="1.5" color="#4682b4"></a-light> <!-- Lumière 2 -->
