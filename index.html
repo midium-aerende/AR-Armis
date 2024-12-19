@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebXR Cube</title>
-    <!-- Import de Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body {
@@ -14,23 +13,9 @@
         canvas {
             display: block;
         }
-        #enter-vr {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
-    <button id="enter-vr">Enter VR</button>
     <script>
         // Initialisation de la scène, de la caméra et du rendu
         const scene = new THREE.Scene();
@@ -40,42 +25,45 @@
         renderer.xr.enabled = true; // Activer WebXR
         document.body.appendChild(renderer.domElement);
 
-        // Création d'un cube
+        // Activer la session WebXR pour VR
+        navigator.xr.requestSession('immersive-vr').then((session) => {
+            renderer.xr.setSession(session);
+        }).catch((err) => {
+            console.error('WebXR non pris en charge : ', err.message);
+        });
+
+        // Créer un contrôleur VR pour le suivi du téléphone
+        const controller = renderer.xr.getController(0);
+        scene.add(controller);
+
+        // Ajouter un cube à la scène
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
+        cube.position.set(0, 0, -3); // Placer le cube à 3 mètres en face
         scene.add(cube);
 
-        // Position de la caméra
-        camera.position.z = 5;
+        // Configurer les lumières
+        const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+        light.position.set(0, 20, 0);
+        scene.add(light);
 
-        // Animation
-        function animate() {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            renderer.setAnimationLoop(() => {
-                renderer.render(scene, camera);
-            });
-        }
-
-        animate();
-
-        // Ajouter un bouton VR personnalisé
-        const vrButton = document.getElementById('enter-vr');
-        vrButton.addEventListener('click', () => {
-            navigator.xr.requestSession('immersive-vr').then((session) => {
-                renderer.xr.setSession(session);
-            }).catch((err) => {
-                alert('WebXR not supported: ' + err.message);
-            });
-        });
-
-        // Gestion du redimensionnement
+        // Gestion des dimensions de la fenêtre
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Animation
+        function animate() {
+            renderer.setAnimationLoop(() => {
+                cube.rotation.y += 0.01; // Faire tourner le cube
+                renderer.render(scene, camera);
+            });
+        }
+
+        animate();
     </script>
 </body>
 </html>
