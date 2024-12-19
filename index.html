@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello WebXR!</title>
+  <title>WebXR Demo</title>
   <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
 </head>
 <body>
-  <button id="startButton">Start Hello WebXR</button>
+  <button id="startButton">Start AR</button>
   <script>
     let session, renderer, scene, camera;
 
     document.getElementById("startButton").addEventListener("click", async () => {
-      if (!navigator.xr) {
-        alert("WebXR n'est pas pris en charge sur ce navigateur.");
+      if (!navigator.xr || !navigator.xr.isSessionSupported) {
+        alert("WebXR ou la fonctionnalité 'immersive-ar' n'est pas prise en charge sur ce navigateur.");
         return;
       }
       try {
+        const isARSupported = await navigator.xr.isSessionSupported("immersive-ar");
+        if (!isARSupported) {
+          alert("AR immersive n'est pas prise en charge sur cet appareil.");
+          return;
+        }
         await startAR();
       } catch (e) {
-        console.error("Erreur AR :", e);
+        console.error("Erreur lors de l'initialisation AR :", e);
+        alert("Une erreur est survenue. Consultez la console pour plus de détails.");
       }
     });
 
@@ -32,7 +38,7 @@
       // Initialisation de Three.js
       initThree(gl);
 
-      // Demande de session WebXR
+      // Création d'une session immersive-ar
       session = await navigator.xr.requestSession("immersive-ar");
       session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
 
