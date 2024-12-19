@@ -3,26 +3,29 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scène VR Simple avec A-Frame</title>
+    <title>Scène VR avec modèle GLB et vue caméra mobile</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   </head>
   <body>
     <a-scene>
       <!-- Caméra et contrôles VR -->
       <a-camera position="0 1.6 0">
+        <!-- Le curseur pour interagir avec les objets -->
         <a-cursor></a-cursor>
       </a-camera>
 
-      <!-- Sol -->
-      <a-plane rotation="-90 0 0" width="100" height="100" color="#7BC8A4"></a-plane>
+      <!-- Pas de fond spécifique, la vue sera celle de la caméra mobile -->
 
-      <!-- Cube interactif -->
-      <a-box position="0 1 -3" rotation="0 45 0" color="#4CC3D9" depth="1" height="1" width="1" 
-             event-set__enter="_event: mouseenter; color: #FFC65D" event-set__leave="_event: mouseleave; color: #4CC3D9">
-      </a-box>
+      <!-- Modèle 3D : modèle.glb -->
+      <a-entity 
+        gltf-model="url(model.glb)"  <!-- Assurez-vous que le modèle est bien à cet emplacement -->
+        scale="2 2 2" 
+        position="0 1 -3" 
+        rotation="0 45 0">
+      </a-entity>
 
       <!-- Lumière -->
-      <a-light type="directional" position="2 4 -3" target="#box"></a-light>
+      <a-light type="directional" position="2 4 -3"></a-light>
     </a-scene>
   </body>
 </html>
