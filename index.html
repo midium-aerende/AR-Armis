@@ -1,155 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Cube</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-        #enter-vr {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exemple WebXR Cube</title>
+
+  <!-- Charger Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
-    <button id="enter-vr">Enter VR</button>
-    <script>
-        // Initialisation de la scène, de la caméra et du rendu
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true; // Activer WebXR
-        document.body.appendChild(renderer.domElement);
 
-        // Création d'un cube
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(0, 1.5, -3); // Placer le cube à 3 mètres devant l'utilisateur
-        scene.add(cube);
+<script>
+  let scene, camera, renderer, cube;
 
-        // Ajouter une lumière
-        const light = new THREE.HemisphereLight(0xffffff, 0x444444);
-        light.position.set(0, 20, 0);
-        scene.add(light);
+  // Fonction d'initialisation de la scène
+  async function init() {
+    // Création de la scène Three.js
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB); // Fond bleu clair
 
-        // Gestion des dimensions de la fenêtre
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+    // Création de la caméra pour la VR
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // Création du rendu WebGL
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-        // Fonction pour démarrer la session WebXR
-        let xrSession = null;
-        let xrReferenceSpace = null;
-        let xrAnimationFrame = null; // Nouvelle variable pour stocker la référence du frame
+    // Création de l'éclairage ambiant
+    const light = new THREE.AmbientLight(0x404040); // Lumière douce
+    scene.add(light);
 
-        function onXRSessionStarted(session) {
-            xrSession = session;
-            renderer.xr.setSession(session);
-            session.addEventListener('end', onXRSessionEnded);
-            document.getElementById('enter-vr').style.display = 'none'; // Masquer le bouton
+    // Lumière directionnelle pour éclairer la scène
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(0, 1, 1).normalize();
+    scene.add(directionalLight);
 
-            // Créer le "reference space" pour suivre la position du casque
-            session.requestReferenceSpace('local').then((referenceSpace) => {
-                xrReferenceSpace = referenceSpace;
+    // Création du cube (modèle rouge)
+    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1); // Dimensions du cube
+    const material = new THREE.MeshStandardMaterial({ color: 0xff0000 }); // Cube rouge
+    cube = new THREE.Mesh(geometry, material);
+    cube.position.set(0, 0, -0.5); // Cube positionné devant la caméra
+    scene.add(cube);
 
-                // Fonction de rendu avec VR
-                function onXRFrame(time, frame) {
-                    const session = frame.session;
-                    const pose = frame.getViewerPose(xrReferenceSpace);
-                    if (pose) {
-                        // Suivi des mouvements du casque (caméra)
-                        renderer.render(scene, camera);
-                    }
+    // Vérification du support WebXR
+    if ('xr' in navigator) {
+      const session = await navigator.xr.requestSession('immersive-vr'); // Demander une session immersive VR
+      renderer.xr.enabled = true;
+      
+      // Ajouter le rendu au DOM
+      document.body.appendChild(renderer.domElement);
 
-                    // Si l'animation existe encore, continuer la boucle
-                    if (xrSession) {
-                        try {
-                            xrAnimationFrame = session.requestAnimationFrame(onXRFrame); // Enregistrer le prochain frame
-                        } catch (e) {
-                            console.error("Erreur dans la demande du prochain frame WebXR : ", e);
-                        }
-                    }
-                }
+      // Demander une référence d'espace local
+      const referenceSpace = await session.requestReferenceSpace('local');
 
-                try {
-                    xrAnimationFrame = session.requestAnimationFrame(onXRFrame); // Démarre la boucle d'animation VR
-                } catch (e) {
-                    console.error("Erreur lors du démarrage de la boucle d'animation WebXR : ", e);
-                }
-            }).catch((error) => {
-                console.error('Erreur lors de la création du référence d\'espace XR:', error);
-            });
+      // Fonction de gestion des frames WebXR
+      function onXRFrame(time, frame) {
+        const session = frame.session;
+        const pose = frame.getViewerPose(referenceSpace);
+
+        if (pose) {
+          // Rotation du cube pour animation
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
         }
 
-        function onXRSessionEnded() {
-            // Assurez-vous que la session est terminée proprement
-            xrSession = null;
-            document.getElementById('enter-vr').style.display = 'block'; // Affiche à nouveau le bouton
-            // Si l'animation était en cours, l'annuler proprement
-            if (xrAnimationFrame) {
-                try {
-                    cancelAnimationFrame(xrAnimationFrame);
-                    xrAnimationFrame = null; // Réinitialiser la variable
-                } catch (e) {
-                    console.error("Erreur lors de l'annulation de l'animation frame : ", e);
-                }
-            }
-        }
+        // Rendu de la scène
+        renderer.render(scene, camera);
+        session.requestAnimationFrame(onXRFrame);
+      }
 
-        // Bouton pour entrer dans le mode VR
-        const vrButton = document.getElementById('enter-vr');
-        vrButton.addEventListener('click', () => {
-            if (navigator.xr) {
-                navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
-                    if (supported) {
-                        navigator.xr.requestSession('immersive-vr').then(onXRSessionStarted).catch((err) => {
-                            alert('Erreur lors de l\'activation de la VR : ' + err.message);
-                        });
-                    } else {
-                        alert('WebXR n\'est pas supporté dans ce navigateur ou sur ce périphérique.');
-                    }
-                });
-            } else {
-                alert('WebXR n\'est pas pris en charge.');
-            }
-        });
+      // Lancer la session WebXR
+      session.requestAnimationFrame(onXRFrame);
+    } else {
+      alert('WebXR n\'est pas supporté par ce navigateur.');
+    }
+  }
 
-        // Fonction d'animation générale
-        function animate() {
-            // Faire tourner le cube
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            if (!xrSession) {
-                renderer.render(scene, camera); // Rendu normal en dehors de VR
-            }
-            renderer.setAnimationLoop(() => {
-                renderer.render(scene, camera); // Rendu avec VR ou non
-            });
-        }
+  // Lancer l'initialisation
+  init();
+</script>
 
-        animate();
-    </script>
 </body>
 </html>
-
