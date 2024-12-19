@@ -31,55 +31,64 @@
 <body>
     <button id="enter-vr">Enter VR</button>
     <script>
-        // Initialisation de la scène, de la caméra et du rendu
+        // Initialisation de Three.js
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true; // Activer WebXR
+        renderer.xr.enabled = true; // Activer le mode XR
         document.body.appendChild(renderer.domElement);
 
-        // Ajouter un cube à la scène
+        // Création d'un cube
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(0, 0, -3); // Placer le cube à 3 mètres en face de l'utilisateur
+        cube.position.set(0, 1.5, -3); // Placer le cube à 3 mètres devant l'utilisateur
         scene.add(cube);
 
-        // Configuration des contrôleurs (pour activer le suivi de la caméra via WebXR)
-        const xrController = renderer.xr.getController(0);
-        scene.add(xrController);
+        // Ajouter une lumière
+        const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+        light.position.set(0, 20, 0);
+        scene.add(light);
 
-        // Bouton pour entrer en mode VR
-        const vrButton = document.getElementById('enter-vr');
-        vrButton.addEventListener('click', () => {
-            if (navigator.xr) {
-                navigator.xr.requestSession('immersive-vr').then((session) => {
-                    renderer.xr.setSession(session);
-                    vrButton.style.display = 'none'; // Masquer le bouton une fois activé
-                }).catch((err) => {
-                    alert('WebXR not supported: ' + err.message);
-                });
-            } else {
-                alert('WebXR is not supported in this browser.');
-            }
-        });
-
-        // Animation
-        function animate() {
-            renderer.setAnimationLoop(() => {
-                renderer.render(scene, camera);
-            });
-        }
-
-        animate();
-
-        // Ajustement des dimensions de la fenêtre
+        // Gestion des dimensions de la fenêtre
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Bouton pour entrer dans le mode VR
+        const vrButton = document.getElementById('enter-vr');
+        vrButton.addEventListener('click', () => {
+            if (navigator.xr) {
+                navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+                    if (supported) {
+                        navigator.xr.requestSession('immersive-vr').then((session) => {
+                            renderer.xr.setSession(session);
+                            vrButton.style.display = 'none'; // Masquer le bouton après activation
+                        }).catch((err) => {
+                            alert('Erreur lors de l\'activation de la VR : ' + err.message);
+                        });
+                    } else {
+                        alert('WebXR n\'est pas supporté dans ce navigateur ou sur ce périphérique.');
+                    }
+                });
+            } else {
+                alert('WebXR n\'est pas pris en charge.');
+            }
+        });
+
+        // Animation
+        function animate() {
+            cube.rotation.x += 0.01; // Faire tourner le cube sur l'axe X
+            cube.rotation.y += 0.01; // Faire tourner le cube sur l'axe Y
+            renderer.setAnimationLoop(() => {
+                renderer.render(scene, camera); // Rendu de la scène
+            });
+        }
+
+        animate();
     </script>
 </body>
 </html>
