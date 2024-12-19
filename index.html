@@ -10,16 +10,12 @@
     <a-scene>
 
       <!-- Caméra et contrôles VR -->
-      <a-camera position="0 1.6 0" look-controls="pointerLockEnabled: false;">
+      <a-camera position="0 10 0" look-controls="pointerLockEnabled: false;">
         
       </a-camera>
       
       <!-- Modèle 3D : modèle.glb -->
-      <a-entity 
-        gltf-model="url(model.glb)"  <!-- Assurez-vous que le modèle est bien à cet emplacement -->
-        scale="1 1 1" 
-        position="-50 0 0"  <!-- Positionner plus loin de la caméra -->
-        rotation="0 0 0">
+      <a-entity gltf-model="url(model.glb)" scale="1 1 1" position="0 0 0" rotation="0 0 0">
       </a-entity>
 
       <!-- Source de lumière : ajoutez une lumière directionnelle pour éclairer la scène -->
