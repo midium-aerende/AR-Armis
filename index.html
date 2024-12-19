@@ -11,22 +11,19 @@
 
       <!-- Caméra et contrôles VR -->
       <a-camera position="0 1.6 0" look-controls="pointerLockEnabled: true;">
-        <!-- Le curseur pour interagir avec les objets -->
-        <a-cursor></a-cursor>
+        
       </a-camera>
-
-      <!-- Le fond est automatiquement la vue derrière la caméra, donc on ne spécifie pas de fond ici -->
       
       <!-- Modèle 3D : modèle.glb -->
       <a-entity 
         gltf-model="url(model.glb)"  <!-- Assurez-vous que le modèle est bien à cet emplacement -->
-        scale="2 2 2" 
-        position="0 0 -5"  <!-- Positionner plus loin de la caméra -->
-        rotation="0 45 0">
+        scale="1 1 1" 
+        position="0 0 10"  <!-- Positionner plus loin de la caméra -->
+        rotation="0 0 0">
       </a-entity>
 
       <!-- Source de lumière : ajoutez une lumière directionnelle pour éclairer la scène -->
-      <a-light type="directional" position="2 4 -3" intensity="1.5"></a-light>
+      <a-light type="directional" position="2 4 -3" intensity="2.0"></a-light>
       
       <!-- Une lumière d'ambiance douce pour éviter les zones trop sombres -->
       <a-light type="ambient" color="#fff" intensity="0.5"></a-light>
