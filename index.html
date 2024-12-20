@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame avec Géolocalisation et Caméra Mobile</title>
+    <title>A-Frame avec Géolocalisation en Temps Réel</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene>
-      <!-- Caméra qui suit la position GPS -->
+      <!-- Caméra qui suit la position GPS de l'utilisateur -->
       <a-camera id="userCamera" position="0 1.6 0" rotation="0 0 0"></a-camera>
 
       <!-- Lumières de la scène -->
@@ -26,27 +26,28 @@
     </a-scene>
 
     <script>
-      // Fonction pour récupérer la géolocalisation de l'utilisateur
+      // Fonction pour mettre à jour la position de la caméra en temps réel
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          // Récupérer la latitude et la longitude
+        navigator.geolocation.watchPosition(function(position) {
+          // Récupérer la latitude et la longitude de l'utilisateur
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
 
-          // Affichage des coordonnées dans la scène
+          // Afficher les coordonnées dans la scène
           const gpsInfo = document.getElementById('gpsInfo');
           gpsInfo.setAttribute('value', `Latitude: ${latitude}\nLongitude: ${longitude}`);
 
           // Positionner la caméra en fonction des coordonnées GPS
           const userCamera = document.getElementById('userCamera');
           
-          // Ajuster la position de la caméra
+          // Ajuster la position de la caméra pour qu'elle suive l'utilisateur
           userCamera.setAttribute('position', `${longitude / 1000} 1.6 ${latitude / 1000}`);
-
-          // Optionnel : Si vous voulez que la caméra regarde vers un certain objet ou direction
-          userCamera.setAttribute('look-controls', 'enabled: true');
         }, function(error) {
           alert("Erreur de géolocalisation : " + error.message);
+        }, {
+          enableHighAccuracy: true,  // Améliore la précision GPS si possible
+          timeout: 10000,            // Temps d'attente maximal avant un échec
+          maximumAge: 0             // Pas de cache de géolocalisation
         });
       } else {
         alert("La géolocalisation n'est pas disponible sur ce navigateur.");
