@@ -33,24 +33,27 @@
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
 
-          // Afficher les coordonnées dans la scène
+          // Extraire les parties après la virgule pour la latitude et la longitude (micro-déplacement)
+          const latDecimalPart = latitude - Math.floor(latitude);
+          const lonDecimalPart = longitude - Math.floor(longitude);
+
+          // Afficher les coordonnées dans la scène, avec les parties après la virgule (micro-déplacements)
           const gpsInfo = document.getElementById('gpsInfo');
-          gpsInfo.setAttribute('value', `Latitude: ${latitude}\nLongitude: ${longitude}`);
+          gpsInfo.setAttribute('value', `Latitude: ${latitude}\nLongitude: ${longitude}\nLat Decimal: ${latDecimalPart.toFixed(6)}\nLon Decimal: ${lonDecimalPart.toFixed(6)}`);
 
-          // Positionner la caméra en fonction des coordonnées GPS
+          // Positionner la caméra en fonction des micro-déplacements (petits mouvements)
           const userCamera = document.getElementById('userCamera');
-          // Ajuster la position de la caméra
-          userCamera.setAttribute('position', `${longitude / 10} 1.6 ${latitude / 10}`);
+          const scale = 0.01; // Facteur d'échelle pour petits mouvements dans la salle
+          userCamera.setAttribute('position', `${lonDecimalPart * scale} 1.6 ${latDecimalPart * scale}`);
 
-          // Mettre à jour la position de l'objet en fonction des coordonnées GPS
+          // Mettre à jour la position de l'objet 3D en fonction des micro-déplacements
           const geoObject = document.getElementById('geoObject');
-          // Ajuster la position de l'objet 3D
-          geoObject.setAttribute('position', `${longitude / 10} 0.5 ${latitude / 10}`);
+          geoObject.setAttribute('position', `${lonDecimalPart * scale} 0.5 ${latDecimalPart * scale}`);
         }, function(error) {
           console.log("Erreur de géolocalisation : " + error.message);
         }, {
           enableHighAccuracy: true,  // Améliore la précision GPS si possible
-          timeout: 1000,            // Temps d'attente maximal avant un échec
+          timeout: 1000,             // Temps d'attente maximal avant un échec
           maximumAge: 0             // Pas de cache de géolocalisation
         });
       } else {
