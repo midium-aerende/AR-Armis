@@ -3,48 +3,23 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scène VR avec modèle GLB et vue caméra mobile</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <title>AR.js - Réalité Augmentée</title>
+    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/ar.js/aframe/build/aframe-ar.min.js"></script>
   </head>
-  <body>
-    <a-scene>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene embedded arjs>
+      <!-- Marqueur Hiro -->
+      <a-marker preset="hiro">
+        <a-entity 
+          gltf-model="model.glb" 
+          scale="0.5 0.5 0.5" 
+          position="0 0 0">
+        </a-entity>
+      </a-marker>
 
-      <!-- Caméra avec contrôle de mouvement basé sur l'inclinaison du mobile et possibilité de déplacement -->
-      <a-camera position="0 1.5 5" 
-                look-controls="pointerLockEnabled: true">
-        <a-cursor></a-cursor>
-      </a-camera>
-      
-      <!-- Modèle 3D : modèle.glb -->
-      <a-entity gltf-model="url(model.glb)" scale="1 1 1" position="0 0 0" rotation="0 0 0">
-      </a-entity>
-
-      <!-- Lumières autour de la scène -->
-      <a-light type="directional" position="5 5 5" intensity="1.5" color="#ff6347"></a-light>  <!-- Lumière 1 -->
-      <a-light type="directional" position="-5 5 5" intensity="1.5" color="#4682b4"></a-light> <!-- Lumière 2 -->
-      <a-light type="directional" position="5 5 -5" intensity="1.5" color="#32cd32"></a-light> <!-- Lumière 3 -->
-      <a-light type="directional" position="-5 5 -5" intensity="1.5" color="#ffea00"></a-light> <!-- Lumière 4 -->
-
-      <!-- Lumière d'ambiance -->
-      <a-light type="ambient" color="#fff" intensity="0.5"></a-light>
-
+      <!-- Lumières -->
+      <a-light type="ambient" color="#ffffff"></a-light>
+      <a-light type="directional" position="1 1 1"></a-light>
     </a-scene>
-
-    <script>
-      // JavaScript pour capturer la caméra de l'utilisateur et l'utiliser comme source pour le fond
-      const video = document.getElementById('camera-feed');
-      const videoSource = document.getElementById('video-source');
-
-      // Demander l'accès à la caméra de l'utilisateur
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then((stream) => {
-          // Assigner le flux vidéo à l'élément <video>
-          video.srcObject = stream;
-        })
-        .catch((err) => {
-          console.log("Erreur d'accès à la caméra : " + err);
-        });
-    </script>
-
   </body>
 </html>
