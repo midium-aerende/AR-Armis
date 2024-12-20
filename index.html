@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi GPS et déplacement de la caméra - A-Frame</title>
+    <title>Suivi GPS et déplacement de la caméra avec modèle 3D - A-Frame</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
@@ -18,7 +18,10 @@
       <!-- Terrain ou fond de la scène -->
       <a-plane color="#7BC8A4" height="10" width="10" rotation="-90 0 0" position="0 0 0"></a-plane>
 
-      <!-- Affichage des informations supplémentaires si nécessaire -->
+      <!-- Modèle 3D (remplacer le cube par votre modèle .glb) -->
+      <a-entity id="geoModel" gltf-model="url(model.glb)" position="0 0.5 -3" scale="0.5 0.5 0.5"></a-entity>
+
+      <!-- Affichage des informations GPS -->
       <a-text id="gpsInfo" value="GPS Loading..." position="0 2 -4" color="black"></a-text>
     </a-scene>
 
@@ -28,7 +31,7 @@
         let previousLongitude = null;
         let scaleFactor = 100;  // Facteur de mise à l'échelle pour les centimètres (1° = 111000m)
 
-        // Fonction pour mettre à jour la position GPS de la caméra
+        // Fonction pour mettre à jour la position GPS de la caméra et du modèle
         navigator.geolocation.watchPosition(function(position) {
           // Récupérer la latitude et la longitude de l'utilisateur
           const latitude = position.coords.latitude;
@@ -58,8 +61,19 @@
             // Déplacer la caméra en fonction du déplacement GPS
             userCamera.setAttribute('position', {
               x: currentPosition.x + lonInCm,
-              y: currentPosition.y,  // Conserver la hauteur (y)
+              y: currentPosition.y,  // La hauteur reste constante
               z: currentPosition.z + latInCm
+            });
+
+            // Mettre à jour la position du modèle en fonction du déplacement GPS
+            const geoModel = document.getElementById('geoModel');
+            const currentModelPosition = geoModel.getAttribute('position');
+
+            // Déplacer le modèle en fonction du déplacement GPS
+            geoModel.setAttribute('position', {
+              x: currentModelPosition.x + lonInCm,
+              y: currentModelPosition.y,  // La hauteur du modèle reste constante
+              z: currentModelPosition.z + latInCm
             });
           }
 
@@ -70,7 +84,7 @@
           console.log("Erreur de géolocalisation : " + error.message);
         }, {
           enableHighAccuracy: true,  // Améliore la précision GPS si possible
-          timeout: 1000,             // Temps d'attente maximal avant un échec
+          timeout: 500,             // Temps d'attente plus court pour une mise à jour rapide
           maximumAge: 0             // Pas de cache de géolocalisation
         });
       } else {
@@ -79,3 +93,4 @@
     </script>
   </body>
 </html>
+
