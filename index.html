@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame avec Géolocalisation en Temps Réel</title>
+    <title>Suivi en Temps Réel de la Position - A-Frame</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
@@ -15,7 +15,7 @@
       <a-light type="directional" position="2 4 -3" intensity="0.5"></a-light>
       <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
 
-      <!-- Modèle 3D simple (cube) -->
+      <!-- Modèle 3D (cube qui suit l'utilisateur) -->
       <a-box id="geoObject" color="blue" position="0 0.5 -3" scale="1 1 1"></a-box>
 
       <!-- Terrain ou fond de la scène -->
@@ -26,7 +26,7 @@
     </a-scene>
 
     <script>
-      // Fonction pour mettre à jour la position de la caméra en temps réel
+      // Fonction pour mettre à jour la position de la caméra et de l'objet en temps réel
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(function(position) {
           // Récupérer la latitude et la longitude de l'utilisateur
@@ -39,9 +39,13 @@
 
           // Positionner la caméra en fonction des coordonnées GPS
           const userCamera = document.getElementById('userCamera');
-          
-          // Ajuster la position de la caméra pour qu'elle suive l'utilisateur
+          // Ajuster la position de la caméra
           userCamera.setAttribute('position', `${longitude / 1000} 1.6 ${latitude / 1000}`);
+
+          // Mettre à jour la position de l'objet en fonction des coordonnées GPS
+          const geoObject = document.getElementById('geoObject');
+          // Ajuster la position de l'objet 3D
+          geoObject.setAttribute('position', `${longitude / 1000} 0.5 ${latitude / 1000}`);
         }, function(error) {
           alert("Erreur de géolocalisation : " + error.message);
         }, {
