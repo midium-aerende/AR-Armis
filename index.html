@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi en Temps Réel de la Position - A-Frame</title>
+    <title>Suivi GPS et déplacement de la caméra - A-Frame</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
@@ -15,40 +15,57 @@
       <a-light type="directional" position="2 4 -3" intensity="0.5"></a-light>
       <a-light type="ambient" color="#ffffff" intensity="0.3"></a-light>
 
-      <!-- Modèle 3D (cube qui suit l'utilisateur) -->
-      <a-box id="geoObject" color="blue" position="0 0.5 -3" scale="1 1 1"></a-box>
-
       <!-- Terrain ou fond de la scène -->
       <a-plane color="#7BC8A4" height="10" width="10" rotation="-90 0 0" position="0 0 0"></a-plane>
 
-      <!-- Affichage des coordonnées GPS -->
+      <!-- Affichage des informations supplémentaires si nécessaire -->
       <a-text id="gpsInfo" value="GPS Loading..." position="0 2 -4" color="black"></a-text>
     </a-scene>
 
     <script>
-      // Fonction pour mettre à jour la position de la caméra et de l'objet en temps réel
       if (navigator.geolocation) {
+        let previousLatitude = null;
+        let previousLongitude = null;
+        let scaleFactor = 100;  // Facteur de mise à l'échelle pour les centimètres (1° = 111000m)
+
+        // Fonction pour mettre à jour la position GPS de la caméra
         navigator.geolocation.watchPosition(function(position) {
           // Récupérer la latitude et la longitude de l'utilisateur
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
 
-          // Extraire les parties après la virgule pour la latitude et la longitude (micro-déplacement)
-          const latDecimalPart = latitude - Math.floor(latitude);
-          const lonDecimalPart = longitude - Math.floor(longitude);
-
-          // Afficher les coordonnées dans la scène, avec les parties après la virgule (micro-déplacements)
+          // Afficher les coordonnées GPS dans la scène
           const gpsInfo = document.getElementById('gpsInfo');
-          gpsInfo.setAttribute('value', `Latitude: ${latitude}\nLongitude: ${longitude}\nLat Decimal: ${latDecimalPart.toFixed(6)}\nLon Decimal: ${lonDecimalPart.toFixed(6)}`);
+          gpsInfo.setAttribute('value', `Latitude: ${latitude}\nLongitude: ${longitude}`);
 
-          // Positionner la caméra en fonction des micro-déplacements (petits mouvements)
-          const userCamera = document.getElementById('userCamera');
-          const scale = 0.01; // Facteur d'échelle pour petits mouvements dans la salle
-          userCamera.setAttribute('position', `${lonDecimalPart * scale} 1.6 ${latDecimalPart * scale}`);
+          // Calculer la différence par rapport à la position précédente (pour simuler les déplacements en centimètres)
+          if (previousLatitude !== null && previousLongitude !== null) {
+            const latDiff = latitude - previousLatitude;
+            const lonDiff = longitude - previousLongitude;
 
-          // Mettre à jour la position de l'objet 3D en fonction des micro-déplacements
-          const geoObject = document.getElementById('geoObject');
-          geoObject.setAttribute('position', `${lonDecimalPart * scale} 0.5 ${latDecimalPart * scale}`);
+            // Convertir la différence en mètres
+            const latInMeters = latDiff * 111000;  // Latitude = environ 111 km par degré
+            const lonInMeters = lonDiff * 111000;  // Longitude = environ 111 km par degré
+
+            // Convertir en centimètres
+            const latInCm = latInMeters * 100;  // Conversion en centimètres
+            const lonInCm = lonInMeters * 100;  // Conversion en centimètres
+
+            // Mettre à jour la position de la caméra en fonction de ces déplacements
+            const userCamera = document.getElementById('userCamera');
+            const currentPosition = userCamera.getAttribute('position');
+
+            // Déplacer la caméra en fonction du déplacement GPS
+            userCamera.setAttribute('position', {
+              x: currentPosition.x + lonInCm,
+              y: currentPosition.y,  // Conserver la hauteur (y)
+              z: currentPosition.z + latInCm
+            });
+          }
+
+          // Enregistrer les coordonnées actuelles pour le prochain calcul
+          previousLatitude = latitude;
+          previousLongitude = longitude;
         }, function(error) {
           console.log("Erreur de géolocalisation : " + error.message);
         }, {
