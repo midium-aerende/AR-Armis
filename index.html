@@ -3,13 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi GPS et déplacement de la caméra avec modèle 3D - A-Frame</title>
+    <title>Scene avec modèle .glb et contrôle de la caméra</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene>
-      <!-- Caméra qui suit la position GPS de l'utilisateur -->
-      <a-camera id="userCamera" position="0 1.6 0" rotation="0 0 0"></a-camera>
+      <!-- Caméra avec contrôle standard pour le mouvement -->
+      <a-camera position="0 1.6 5" wasd-controls="enabled: true">
+        <a-cursor></a-cursor>
+      </a-camera>
 
       <!-- Lumières de la scène -->
       <a-light type="directional" position="2 4 -3" intensity="0.5"></a-light>
@@ -19,78 +21,10 @@
       <a-plane color="#7BC8A4" height="10" width="10" rotation="-90 0 0" position="0 0 0"></a-plane>
 
       <!-- Modèle 3D (remplacer le cube par votre modèle .glb) -->
-      <a-entity id="geoModel" gltf-model="url(model.glb)" position="0 0.5 -3" scale="0.5 0.5 0.5"></a-entity>
-
-      <!-- Affichage des informations GPS -->
-      <a-text id="gpsInfo" value="GPS Loading..." position="0 2 -4" color="black"></a-text>
+      <a-entity gltf-model="url(model.glb)" position="0 0.5 -3" scale="0.5 0.5 0.5"></a-entity>
+      
+      <!-- Affichage des informations supplémentaires si nécessaire -->
+      <a-text id="infoText" value="Déplacez-vous avec WASD" position="0 2 -4" color="black"></a-text>
     </a-scene>
-
-    <script>
-      if (navigator.geolocation) {
-        let previousLatitude = null;
-        let previousLongitude = null;
-        let scaleFactor = 100;  // Facteur de mise à l'échelle pour les centimètres (1° = 111000m)
-
-        // Fonction pour mettre à jour la position GPS de la caméra et du modèle
-        navigator.geolocation.watchPosition(function(position) {
-          // Récupérer la latitude et la longitude de l'utilisateur
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-
-          // Afficher les coordonnées GPS dans la scène
-          const gpsInfo = document.getElementById('gpsInfo');
-          gpsInfo.setAttribute('value', `Latitude: ${latitude}\nLongitude: ${longitude}`);
-
-          // Calculer la différence par rapport à la position précédente (pour simuler les déplacements en centimètres)
-          if (previousLatitude !== null && previousLongitude !== null) {
-            const latDiff = latitude - previousLatitude;
-            const lonDiff = longitude - previousLongitude;
-
-            // Convertir la différence en mètres
-            const latInMeters = latDiff * 111000;  // Latitude = environ 111 km par degré
-            const lonInMeters = lonDiff * 111000;  // Longitude = environ 111 km par degré
-
-            // Convertir en centimètres
-            const latInCm = latInMeters * 100;  // Conversion en centimètres
-            const lonInCm = lonInMeters * 100;  // Conversion en centimètres
-
-            // Mettre à jour la position de la caméra en fonction de ces déplacements
-            const userCamera = document.getElementById('userCamera');
-            const currentPosition = userCamera.getAttribute('position');
-
-            // Déplacer la caméra en fonction du déplacement GPS
-            userCamera.setAttribute('position', {
-              x: currentPosition.x + lonInCm,
-              y: currentPosition.y,  // La hauteur reste constante
-              z: currentPosition.z + latInCm
-            });
-
-            // Mettre à jour la position du modèle en fonction du déplacement GPS
-            const geoModel = document.getElementById('geoModel');
-            const currentModelPosition = geoModel.getAttribute('position');
-
-            // Déplacer le modèle en fonction du déplacement GPS
-            geoModel.setAttribute('position', {
-              x: currentModelPosition.x + lonInCm,
-              y: currentModelPosition.y,  // La hauteur du modèle reste constante
-              z: currentModelPosition.z + latInCm
-            });
-          }
-
-          // Enregistrer les coordonnées actuelles pour le prochain calcul
-          previousLatitude = latitude;
-          previousLongitude = longitude;
-        }, function(error) {
-          console.log("Erreur de géolocalisation : " + error.message);
-        }, {
-          enableHighAccuracy: true,  // Améliore la précision GPS si possible
-          timeout: 500,             // Temps d'attente plus court pour une mise à jour rapide
-          maximumAge: 0             // Pas de cache de géolocalisation
-        });
-      } else {
-        console.log("La géolocalisation n'est pas disponible sur ce navigateur.");
-      }
-    </script>
   </body>
 </html>
-
