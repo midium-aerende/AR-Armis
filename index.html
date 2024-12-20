@@ -40,21 +40,21 @@
           // Positionner la caméra en fonction des coordonnées GPS
           const userCamera = document.getElementById('userCamera');
           // Ajuster la position de la caméra
-          userCamera.setAttribute('position', `${longitude / 1000} 1.6 ${latitude / 1000}`);
+          userCamera.setAttribute('position', `${longitude / 10} 1.6 ${latitude / 10}`);
 
           // Mettre à jour la position de l'objet en fonction des coordonnées GPS
           const geoObject = document.getElementById('geoObject');
           // Ajuster la position de l'objet 3D
-          geoObject.setAttribute('position', `${longitude / 1000} 0.5 ${latitude / 1000}`);
+          geoObject.setAttribute('position', `${longitude / 10} 0.5 ${latitude / 10}`);
         }, function(error) {
-          alert("Erreur de géolocalisation : " + error.message);
+          console.log("Erreur de géolocalisation : " + error.message);
         }, {
           enableHighAccuracy: true,  // Améliore la précision GPS si possible
-          timeout: 10000,            // Temps d'attente maximal avant un échec
+          timeout: 1000,            // Temps d'attente maximal avant un échec
           maximumAge: 0             // Pas de cache de géolocalisation
         });
       } else {
-        alert("La géolocalisation n'est pas disponible sur ce navigateur.");
+        console.log("La géolocalisation n'est pas disponible sur ce navigateur.");
       }
     </script>
   </body>
